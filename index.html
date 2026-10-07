@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Laboratório Matemático 3D — Mobile</title>
+  <style>
+    :root {
+      --bg: #0b0e13;
+      --panel: #121720;
+      --panel2: #171d27;
+      --line: #27303d;
+      --text: #f3f6fa;
+      --muted: #98a2b3;
+      --accent: #65e6b4;
+      --accent2: #77a8ff;
+      --danger: #ff7d8a;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .25)
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text)
+    }
+
+    button,
+    input,
+    select {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer;
+      color: inherit
+    }
+
+    .topbar {
+      height: 72px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: rgba(11, 14, 19, .92);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 16px
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #193c34, #19334d);
+      color: var(--accent);
+      font-size: 23px;
+      font-weight: 800
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px
+    }
+
+    .top-actions button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 9px;
+      padding: 8px 12px
+    }
+
+    .ghost {
+      color: var(--muted)
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: calc(100vh - 72px)
+    }
+
+    .sidebar {
+      padding: 18px;
+      border-right: 1px solid var(--line);
+      background: #0e1218
+    }
+
+    .workspace {
+      padding: 18px;
+      min-width: 0
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(24, 30, 41, .96), rgba(16, 21, 29, .96));
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px
+    }
+
+    .intro {
+      background: radial-gradient(circle at 85% 10%, rgba(101, 230, 180, .12), transparent 38%), linear-gradient(180deg, #151d27, #10151d)
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--accent);
+      font-weight: 800
+    }
+
+    .intro h1 {
+      font-size: 22px;
+      line-height: 1.1;
+      margin: 8px 0
+    }
+
+    .intro p,
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55
+    }
+
+    label {
+      display: block;
+      color: #c7ced8;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 7px
+    }
+
+    .formula-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 7px
+    }
+
+    .formula-row input,
+    select,
+    input[type=number] {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #0c1118;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 9px;
+      outline: none
+    }
+
+    select {
+      margin-bottom: 14px
+    }
+
+    .formula-row button,
+    .primary {
+      border: 0;
+      background: var(--accent);
+      color: #08120f;
+      border-radius: 8px;
+      font-weight: 800;
+      padding: 0 12px
+    }
+
+    .examples {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 8px
+    }
+
+    .examples button {
+      border: 1px solid var(--line);
+      background: #0d131b;
+      border-radius: 7px;
+      padding: 5px 7px;
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 11px;
+      margin-top: 8px
+    }
+
+    .hidden {
+      display: none
+    }
+
+    .control {
+      margin: 14px 0
+    }
+
+    .control>div {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 11px
+    }
+
+    .control span {
+      color: var(--muted)
+    }
+
+    .control b {
+      font-size: 11px
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--accent)
+    }
+
+    .toggles label {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 12px
+    }
+
+    .viewport-card {
+      height: min(62vh, 650px);
+      min-height: 430px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #05080c;
+      box-shadow: var(--shadow)
+    }
+
+    #viewport {
+      position: absolute;
+      inset: 0
+    }
+
+    .viewport-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none
+    }
+
+    .legend {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      background: rgba(6, 9, 13, .7);
+      backdrop-filter: blur(8px);
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 10px
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      display: inline-block;
+      border-radius: 50%;
+      margin: 0 4px 0 9px
+    }
+
+    .dot:first-child {
+      margin-left: 0
+    }
+
+    .low {
+      background: #264e9b
+    }
+
+    .high {
+      background: #ffdd62
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 12px;
+      right: 14px;
+      color: #8c96a5;
+      font-size: 10px;
+      background: rgba(6, 9, 13, .65);
+      padding: 7px 9px;
+      border-radius: 8px
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(5, 8, 12, .6);
+      font-size: 12px;
+      color: var(--muted);
+      pointer-events: none;
+      opacity: 0;
+      transition: .2s
+    }
+
+    .loading.show {
+      opacity: 1
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 12px 0
+    }
+
+    .metrics article {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px
+    }
+
+    .metrics span,
+    .metrics small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px
+    }
+
+    .metrics strong {
+      display: block;
+      font-size: 17px;
+      margin: 5px 0
+    }
+
+    .lower-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 14px
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--line);
+      margin: -16px -16px 14px;
+      padding: 10px 12px 0
+    }
+
+    .tab {
+      border: 0;
+      background: none;
+      color: var(--muted);
+      padding: 9px 10px;
+      border-bottom: 2px solid transparent;
+      font-size: 11px
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-bottom-color: var(--accent)
+    }
+
+    .tab-content {
+      display: none
+    }
+
+    .tab-content.active {
+      display: block
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .info-grid div {
+      background: #0d131b;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px
+    }
+
+    .info-grid span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      margin-bottom: 5px
+    }
+
+    .info-grid b {
+      font-size: 12px
+    }
+
+    .explain,
+    .formula-card {
+      margin-top: 12px;
+      background: #0d131b;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px
+    }
+
+    .explain strong,
+    .formula-card span {
+      font-size: 11px
+    }
+
+    .explain p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+      margin-bottom: 0
+    }
+
+    .formula-card code {
+      display: block;
+      color: #dce6f5;
+      margin-top: 9px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px
+    }
+
+    .guide h2 {
+      margin: 5px 0 10px;
+      font-size: 18px
+    }
+
+    .guide ol {
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 2
+    }
+
+    .guide .primary {
+      width: 100%;
+      height: 36px
+    }
+
+    .integration-form {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px
+    }
+
+    .integration-form label {
+      font-size: 10px
+    }
+
+    .integration-form button {
+      grid-column: 1/-1;
+      height: 34px;
+      border: 1px solid var(--line);
+      background: #101822;
+      border-radius: 8px;
+      color: var(--text)
+    }
+
+    .integral-result {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      background: #0d131b
+    }
+
+    .integral-result span,
+    .integral-result small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px
+    }
+
+    .integral-result strong {
+      display: block;
+      font-size: 22px;
+      margin: 5px 0
+    }
+
+    .contours canvas {
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #080c12
+    }
+
+    .light {
+      --bg: #eef2f7;
+      --panel: #fff;
+      --panel2: #fff;
+      --line: #d8dee8;
+      --text: #17202c;
+      --muted: #687386
+    }
+
+    .light .topbar,
+    .light .sidebar {
+      background: rgba(245, 247, 250, .92)
+    }
+
+    .light .viewport-card {
+      background: #dce5ef
+    }
+
+    .light .formula-row input,
+    .light select,
+    .light input[type=number],
+    .light .examples button,
+    .light .info-grid div,
+    .light .explain,
+    .light .formula-card,
+    .light .integral-result {
+      background: #f5f7fa
+    }
+
+    @media(max-width:1100px) {
+      .layout {
+        grid-template-columns: 280px 1fr
+      }
+
+      .lower-grid {
+        grid-template-columns: 1fr
+      }
+
+      .guide {
+        display: none
+      }
+    }
+
+    @media(max-width:760px) {
+      .topbar {
+        padding: 0 12px
+      }
+
+      .brand span {
+        display: none
+      }
+
+      .layout {
+        display: block
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .workspace,
+      .sidebar {
+        padding: 12px
+      }
+
+      .viewport-card {
+        min-height: 360px;
+        height: 55vh
+      }
+
+      .metrics {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .integration-form {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .tabs {
+        overflow: auto;
+        white-space: nowrap
+      }
+
+      .tab {
+        flex: none
+      }
+
+      .hint {
+        display: none
+      }
+    }
+
+    .map-tools {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      pointer-events: auto
+    }
+
+    .map-tools button {
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 9px;
+      background: rgba(6, 9, 13, .78);
+      backdrop-filter: blur(8px);
+      color: #f3f6fa;
+      font-size: 18px;
+      line-height: 1;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .22)
+    }
+
+    .map-tools button:hover {
+      background: rgba(30, 39, 52, .92)
+    }
+
+    #viewport canvas {
+      display: block;
+      touch-action: none;
+      cursor: grab
+    }
+
+    #viewport canvas:active {
+      cursor: grabbing
+    }
+
+    .light .map-tools button {
+      background: rgba(255, 255, 255, .9);
+      color: #17202c;
+      border-color: #d8dee8
+    }
+
+    .light .hint {
+      background: rgba(255, 255, 255, .82);
+      color: #687386
+    }
+
+    .light .legend {
+      background: rgba(255, 255, 255, .82)
+    }
+
+
+    /* Experiência mobile estilo mapa */
+    @media (max-width: 760px) {
+
+      html,
+      body {
+        overscroll-behavior: none;
+      }
+
+      .topbar {
+        height: 60px;
+        position: sticky;
+      }
+
+      .brand strong {
+        font-size: 14px;
+      }
+
+      .logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+      }
+
+      .top-actions button {
+        min-width: 42px;
+        min-height: 42px;
+        padding: 8px;
+      }
+
+      .sidebar {
+        padding: 10px;
+      }
+
+      .workspace {
+        padding: 10px;
+      }
+
+      .viewport-card {
+        height: 62vh;
+        min-height: 390px;
+        border-radius: 12px;
+      }
+
+      #viewport {
+        touch-action: none;
+      }
+
+      #viewport canvas {
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .map-tools {
+        right: 10px;
+        top: 10px;
+      }
+
+      .map-tools button {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        font-size: 22px;
+      }
+
+      .legend {
+        top: 10px;
+        left: 10px;
+        font-size: 9px;
+      }
+
+      .hint {
+        display: block;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        text-align: center;
+        font-size: 9px;
+      }
+
+      .metrics article {
+        padding: 10px;
+        min-height: 72px;
+      }
+
+      .metrics strong {
+        font-size: 15px;
+      }
+
+      .panel {
+        padding: 13px;
+        border-radius: 12px;
+      }
+
+      .formula-row {
+        grid-template-columns: 1fr;
+      }
+
+      .formula-row button {
+        height: 42px;
+      }
+
+      .examples button {
+        min-height: 36px;
+        padding: 7px 9px;
+      }
+
+      .toggles label {
+        min-height: 38px;
+      }
+
+      input[type=range] {
+        height: 28px;
+      }
+
+      select,
+      input[type=number],
+      .formula-row input {
+        min-height: 42px;
+      }
+
+      .tabs {
+        margin: -13px -13px 13px;
+        padding: 9px 8px 0;
+      }
+
+      .tab {
+        padding: 12px 11px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">∇</div>
+        <div><strong>Laboratório Matemático 3D</strong><span>Exploração interativa de Cálculo Multivariável</span></div>
+      </div>
+      <div class="top-actions"><button id="themeBtn" title="Alternar tema">◐</button><button id="resetBtn"
+          class="ghost">Reiniciar</button></div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="panel intro">
+          <div class="eyebrow">EXPERIMENTO</div>
+          <h1>Superfícies e campos</h1>
+          <p>Altere a função e observe, em tempo real, sua geometria, derivadas, gradiente e plano tangente.</p>
+        </section>
+
+        <section class="panel">
+          <label for="preset">Experimento</label>
+          <select id="preset">
+            <option value="paraboloid">Paraboloide: x² + y²</option>
+            <option value="saddle">Sela: x² − y²</option>
+            <option value="sinusoid">Ondas: sen(x)·cos(y)</option>
+            <option value="gaussian">Gaussiana: e^(−x²−y²)</option>
+            <option value="monkey">Função mista: sen(xy)/(1+x²+y²)</option>
+          </select>
+          <label for="formula">f(x,y)</label>
+          <div class="formula-row"><input id="formula" value="x^2 + y^2"><button id="applyBtn">Aplicar</button></div>
+          <div class="examples"><button data-formula="x^2+y^2">x²+y²</button><button
+              data-formula="x^2-y^2">x²−y²</button><button data-formula="sin(x)*cos(y)">sen(x)cos(y)</button><button
+              data-formula="exp(-(x^2+y^2))">Gaussiana</button></div>
+          <div id="error" class="error hidden"></div>
+        </section>
+
+        <section class="panel controls">
+          <div class="control">
+            <div><span>Domínio</span><b id="rangeVal">[-5, 5]</b></div><input id="range" type="range" min="2" max="10"
+              step="0.5" value="5">
+          </div>
+          <div class="control">
+            <div><span>Resolução</span><b id="resVal">65×65</b></div><input id="resolution" type="range" min="25"
+              max="105" step="10" value="65">
+          </div>
+          <div class="control">
+            <div><span>Ponto x</span><b id="xVal">1.00</b></div><input id="xPoint" type="range" min="-5" max="5"
+              step="0.05" value="1">
+          </div>
+          <div class="control">
+            <div><span>Ponto y</span><b id="yVal">1.00</b></div><input id="yPoint" type="range" min="-5" max="5"
+              step="0.05" value="1">
+          </div>
+        </section>
+
+        <section class="panel toggles">
+          <label><input id="gridToggle" type="checkbox" checked> Grade 3D</label>
+          <label><input id="planeToggle" type="checkbox"> Plano tangente</label>
+          <label><input id="gradientToggle" type="checkbox"> Campo gradiente</label>
+          <label><input id="pointToggle" type="checkbox" checked> Ponto de análise</label>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div class="viewport-card">
+          <div id="viewport"></div>
+          <div class="viewport-overlay">
+            <div class="legend"><span class="dot low"></span> menor z <span class="dot high"></span> maior z</div>
+            <div class="map-tools" aria-label="Controles de navegação"><button id="zoomOutBtn"
+                title="Diminuir zoom">−</button><button id="zoomResetBtn"
+                title="Centralizar e restaurar zoom">⌂</button><button id="zoomInBtn" title="Aumentar zoom">+</button>
+            </div>
+            <div class="hint">🗺️ Arraste com o botão esquerdo para mover · scroll/pinça para zoom · botão direito para
+              girar</div>
+          </div>
+          <div id="loading" class="loading">Calculando superfície…</div>
+        </div>
+
+        <div class="metrics">
+          <article><span>f(x,y)</span><strong id="metricF">—</strong><small>valor no ponto</small></article>
+          <article><span>∂f/∂x</span><strong id="metricFx">—</strong><small>derivada parcial</small></article>
+          <article><span>∂f/∂y</span><strong id="metricFy">—</strong><small>derivada parcial</small></article>
+          <article><span>‖∇f‖</span><strong id="metricGrad">—</strong><small>módulo do gradiente</small></article>
+        </div>
+
+        <div class="lower-grid">
+          <section class="panel tabs-panel">
+            <div class="tabs">
+              <button class="tab active" data-tab="analysis">Análise</button>
+              <button class="tab" data-tab="derivatives">Derivadas</button>
+              <button class="tab" data-tab="contours">Curvas de nível</button>
+              <button class="tab" data-tab="integration">Integração</button>
+            </div>
+            <div id="analysis" class="tab-content active">
+              <div class="info-grid">
+                <div><span>Ponto</span><b id="pointText">(1.00, 1.00)</b></div>
+                <div><span>Gradiente</span><b id="gradientText">(—, —)</b></div>
+                <div><span>Plano tangente</span><b id="planeText">z = —</b></div>
+                <div><span>Classificação local</span><b id="criticalText">—</b></div>
+              </div>
+              <div class="explain"><strong>Como interpretar</strong>
+                <p>O gradiente aponta para a direção de maior crescimento de f. O plano tangente aproxima a superfície
+                  nas proximidades do ponto selecionado.</p>
+              </div>
+            </div>
+            <div id="derivatives" class="tab-content">
+              <div class="formula-card"><span>Derivadas simbólicas</span><code id="symbolicFx">∂f/∂x = —</code><code
+                  id="symbolicFy">∂f/∂y = —</code></div>
+              <div class="formula-card"><span>Hessiana</span><code id="symbolicFxx">fₓₓ = —</code><code
+                  id="symbolicFxy">fₓᵧ = —</code><code id="symbolicFyy">fᵧᵧ = —</code></div>
+            </div>
+            <div id="contours" class="tab-content"><canvas id="contourCanvas" width="800" height="420"></canvas>
+              <p class="muted">As curvas de nível são projeções f(x,y)=c no plano xy. Elas ajudam a enxergar a geometria
+                sem a perspectiva 3D.</p>
+            </div>
+            <div id="integration" class="tab-content">
+              <div class="integration-form"><label>x mínimo<input id="xmin" type="number" value="-2"
+                    step="0.5"></label><label>x máximo<input id="xmax" type="number" value="2"
+                    step="0.5"></label><label>y mínimo<input id="ymin" type="number" value="-2"
+                    step="0.5"></label><label>y máximo<input id="ymax" type="number" value="2"
+                    step="0.5"></label><button id="integrateBtn">Calcular ∬ f dA</button></div>
+              <div class="integral-result"><span>Integral numérica</span><strong
+                  id="integralValue">—</strong><small>Regra do ponto médio em uma malha adaptativa.</small></div>
+            </div>
+          </section>
+
+          <section class="panel guide">
+            <div class="eyebrow">ROTEIRO DIDÁTICO</div>
+            <h2>Experimente</h2>
+            <ol>
+              <li>Escolha uma função.</li>
+              <li>Mova o ponto de análise.</li>
+              <li>Ative o plano tangente.</li>
+              <li>Ative o gradiente e compare a direção.</li>
+              <li>Abra “Curvas de nível”.</li>
+              <li>Calcule uma integral sobre uma região.</li>
+            </ol>
+            <button id="demoBtn" class="primary">Executar demonstração</button>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@14.0.1/lib/browser/math.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const state = { formula: 'x^2 + y^2', range: 5, resolution: 65, x: 1, y: 1, plane: false, gradient: false, point: true, mapNavigation: true };
+    const defaultCamera = { position: new THREE.Vector3(9, 8, 9), target: new THREE.Vector3(0, 0, 0) };
+    const presets = { paraboloid: 'x^2 + y^2', saddle: 'x^2 - y^2', sinusoid: 'sin(x)*cos(y)', gaussian: 'exp(-(x^2+y^2))', monkey: 'sin(x*y)/(1+x^2+y^2)' };
+    let scene, camera, renderer, controls, surface, grid, pointMesh, planeMesh, arrows = [];
+    let fn, dfx, dfy, dxx, dxy, dyy;
+
+    function format(n) { if (!Number.isFinite(n)) return '—'; return Math.abs(n) < 1e-9 ? '0' : n.toFixed(4); }
+    function compileFunction() {
+      try {
+        const node = math.parse(state.formula);
+        fn = x => Number(node.evaluate({ x, y: x === undefined ? 0 : arguments }));
+      } catch (e) { throw e; }
+    }
+    function buildExpressions() {
+      const node = math.parse(state.formula);
+      fn = (x, y) => Number(node.evaluate({ x, y }));
+      const fx = math.derivative(node, 'x'); const fy = math.derivative(node, 'y');
+      dfx = (x, y) => Number(fx.evaluate({ x, y })); dfy = (x, y) => Number(fy.evaluate({ x, y }));
+      try { dxx = math.derivative(fx, 'x'); dxy = math.derivative(fx, 'y'); dyy = math.derivative(fy, 'y'); } catch { dxx = dxy = dyy = null; }
+      $('symbolicFx').textContent = '∂f/∂x = ' + fx.toString(); $('symbolicFy').textContent = '∂f/∂y = ' + fy.toString();
+      $('symbolicFxx').textContent = 'fₓₓ = ' + (dxx ? dxx.toString() : '—'); $('symbolicFxy').textContent = 'fₓᵧ = ' + (dxy ? dxy.toString() : '—'); $('symbolicFyy').textContent = 'fᵧᵧ = ' + (dyy ? dyy.toString() : '—');
+    }
+    function init3D() {
+      const el = $('viewport'); scene = new THREE.Scene(); scene.background = new THREE.Color(0x05080c);
+      camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, .1, 1000); camera.position.set(9, 8, 9);
+      renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(el.clientWidth, el.clientHeight); el.appendChild(renderer.domElement);
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.085;
+      controls.enablePan = true;
+      controls.screenSpacePanning = true;
+      controls.panSpeed = 1.35;
+      controls.zoomSpeed = 1.05;
+      controls.rotateSpeed = 0.55;
+      controls.minDistance = 2.2;
+      controls.maxDistance = 80;
+      controls.target.copy(defaultCamera.target);
+      // Navegação híbrida inspirada em mapas: arraste esquerdo move o mapa;
+      // botão direito gira a câmera; roda/pinça controla o zoom.
+      controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+      controls.mouseButtons.MIDDLE = THREE.MOUSE.DOLLY;
+      controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
+      controls.touches.ONE = THREE.TOUCH.PAN;
+      controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
+      renderer.domElement.addEventListener('dblclick', () => zoomBy(1 / 1.35));
+      scene.add(new THREE.HemisphereLight(0xbfd7ff, 0x14202a, 1.8)); const dl = new THREE.DirectionalLight(0xffffff, 2); dl.position.set(5, 8, 6); scene.add(dl);
+      grid = new THREE.GridHelper(200, 200, 0x2d3947, 0x18212c); grid.position.y = -0.01; scene.add(grid);
+      window.addEventListener('resize', resize); animate();
+    }
+    function resize() { const el = $('viewport'); camera.aspect = el.clientWidth / el.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(el.clientWidth, el.clientHeight) }
+    function zoomBy(factor) {
+      const offset = camera.position.clone().sub(controls.target);
+      const next = offset.multiplyScalar(factor);
+      const dist = Math.max(controls.minDistance, Math.min(controls.maxDistance, next.length()));
+      next.setLength(dist);
+      camera.position.copy(controls.target).add(next);
+      controls.update();
+    }
+    function resetView() {
+      camera.position.copy(defaultCamera.position);
+      controls.target.copy(defaultCamera.target);
+      camera.lookAt(controls.target);
+      controls.update();
+    }
+    function colorFor(t) { const c = new THREE.Color(); const h = (0.66 * (1 - t)); c.setHSL(h, 0.78, 0.54); return c; }
+    function rebuildSurface() {
+      $('loading').classList.add('show');
+      requestAnimationFrame(() => {
+        if (surface) { scene.remove(surface); surface.geometry.dispose(); surface.material.dispose(); }
+        const n = state.resolution, r = state.range; const pos = [], colors = [], idx = []; let min = Infinity, max = -Infinity; const vals = [];
+        for (let j = 0; j < n; j++) { const y = -r + 2 * r * j / (n - 1); for (let i = 0; i < n; i++) { const x = -r + 2 * r * i / (n - 1); let z; try { z = fn(x, y) } catch { z = NaN } if (!Number.isFinite(z)) z = 0; vals.push(z); min = Math.min(min, z); max = Math.max(max, z); } }
+        const scale = Math.max(1, (max - min));
+        for (let j = 0; j < n; j++) { for (let i = 0; i < n; i++) { const x = -r + 2 * r * i / (n - 1), y = -r + 2 * r * j / (n - 1), z = vals[j * n + i]; pos.push(x, z, y); const c = colorFor((z - min) / scale); colors.push(c.r, c.g, c.b); } }
+        for (let j = 0; j < n - 1; j++)for (let i = 0; i < n - 1; i++) { const a = j * n + i, b = a + 1, c = a + n, d = c + 1; idx.push(a, c, b, b, c, d) }
+        const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+        surface = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: .72, metalness: .05 })); scene.add(surface); updateOverlays(); drawContours(); $('loading').classList.remove('show');
+      });
+    }
+    function clearObj(o) { if (o) { scene.remove(o); o.traverse?.(x => { x.geometry?.dispose(); x.material?.dispose() }) } }
+    function updateOverlays() {
+      clearObj(pointMesh); clearObj(planeMesh); arrows.forEach(a => clearObj(a)); arrows = [];
+      const x = state.x, y = state.y, z = fn(x, y); $('metricF').textContent = format(z); const gx = dfx(x, y), gy = dfy(x, y); const norm = Math.hypot(gx, gy);
+      $('metricFx').textContent = format(gx); $('metricFy').textContent = format(gy); $('metricGrad').textContent = format(norm); $('pointText').textContent = `(${x.toFixed(2)}, ${y.toFixed(2)})`; $('gradientText').textContent = `(${format(gx)}, ${format(gy)})`;
+      $('planeText').textContent = `z = ${format(z)} + ${format(gx)}(x−${x.toFixed(2)}) + ${format(gy)}(y−${y.toFixed(2)})`;
+      let classification = 'ponto regular'; const H = (dxx && dxy && dyy) ? Number(dxx.evaluate({ x, y })) * Number(dyy.evaluate({ x, y })) - Number(dxy.evaluate({ x, y })) ** 2 : null;
+      if (norm < .03 && H !== null) classification = H < 0 ? 'ponto de sela' : H > 0 ? (Number(dxx.evaluate({ x, y })) > 0 ? 'mínimo local' : 'máximo local') : 'inconclusivo'; $('criticalText').textContent = classification;
+      if (state.point) { const g = new THREE.SphereGeometry(.11, 20, 20); pointMesh = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0xffffff })); pointMesh.position.set(x, z + .1, y); scene.add(pointMesh) }
+      if (state.plane) addPlane(x, y, z, gx, gy); if (state.gradient) addGradient(x, y, z, gx, gy);
+    }
+    function addPlane(x, y, z, gx, gy) { const s = Math.min(3, state.range * .55), verts = []; for (const yy of [-s, s]) for (const xx of [-s, s]) verts.push(xx, z + gx * (xx) + gy * (yy), yy); const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3)); geo.setIndex([0, 1, 2, 2, 1, 3]); planeMesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .23, side: THREE.DoubleSide })); planeMesh.position.set(x, 0, y); scene.add(planeMesh) }
+    function addGradient(x, y, z, gx, gy) { const L = Math.min(2.2, Math.hypot(gx, gy) * .7 + .4); const dir = new THREE.Vector3(gx, 0, gy).normalize(); const origin = new THREE.Vector3(x, z + .18, y); const arrow = new THREE.ArrowHelper(dir, origin, L, 0xffffff, .16, .09); scene.add(arrow); arrows.push(arrow) }
+    function drawContours() { const canvas = $('contourCanvas'), ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height; ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#080c12'; ctx.fillRect(0, 0, w, h); const r = state.range, N = 90; let vals = [], min = Infinity, max = -Infinity; for (let j = 0; j < N; j++) { const y = -r + 2 * r * j / (N - 1); for (let i = 0; i < N; i++) { const x = -r + 2 * r * i / (N - 1), z = fn(x, y); vals.push(Number.isFinite(z) ? z : 0); min = Math.min(min, z); max = Math.max(max, z) } } const levels = 14; ctx.lineWidth = 1; for (let l = 1; l < levels; l++) { const level = min + (max - min) * l / levels; ctx.strokeStyle = `hsl(${240 - 200 * l / levels},70%,65%)`; ctx.beginPath(); for (let j = 0; j < N - 1; j++)for (let i = 0; i < N - 1; i++) { const a = vals[j * N + i], b = vals[j * N + i + 1], c = vals[(j + 1) * N + i], d = vals[(j + 1) * N + i + 1]; const x = -r + 2 * r * i / (N - 1), y = -r + 2 * r * j / (N - 1), dx = 2 * r / (N - 1), dy = dx; const pts = []; function edge(v1, v2, p1, p2) { if ((v1 < level && v2 >= level) || (v2 < level && v1 >= level)) { const t = (level - v1) / (v2 - v1); pts.push([p1[0] + t * (p2[0] - p1[0]), p1[1] + t * (p2[1] - p1[1])]) } } edge(a, b, [x, y], [x + dx, y]); edge(b, d, [x + dx, y], [x + dx, y + dy]); edge(c, d, [x, y + dy], [x + dx, y + dy]); edge(a, c, [x, y], [x, y + dy]); if (pts.length === 2) { const px = p => [(p[0] + r) / (2 * r) * w, h - (p[1] + r) / (2 * r) * h]; const p1 = px(pts[0]), p2 = px(pts[1]); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]) } } ctx.stroke() } ctx.fillStyle = '#8f9aaa'; ctx.font = '12px system-ui'; ctx.fillText(`f(x,y) = ${state.formula}`, 16, 24) }
+    function apply() { try { state.formula = $('formula').value.trim(); buildExpressions(); rebuildSurface(); $('error').classList.add('hidden') } catch (e) { $('error').textContent = 'Expressão inválida. Use, por exemplo, x^2+y^2 ou sin(x)*cos(y).'; $('error').classList.remove('hidden') } }
+    function updatePoint() { state.x = Number($('xPoint').value); state.y = Number($('yPoint').value); $('xVal').textContent = state.x.toFixed(2); $('yVal').textContent = state.y.toFixed(2); updateOverlays() }
+    function integrate() { const xmin = +$('xmin').value, xmax = +$('xmax').value, ymin = +$('ymin').value, ymax = +$('ymax').value; const n = 100; let sum = 0; const dx = (xmax - xmin) / n, dy = (ymax - ymin) / n; for (let i = 0; i < n; i++)for (let j = 0; j < n; j++) { const x = xmin + (i + .5) * dx, y = ymin + (j + .5) * dy; const z = fn(x, y); if (Number.isFinite(z)) sum += z } $('integralValue').textContent = format(sum * dx * dy) }
+    function animate() { requestAnimationFrame(animate); controls.update(); if (grid) { grid.position.x = controls.target.x; grid.position.z = controls.target.z; } renderer.render(scene, camera) }
+    function bind() {
+      $('applyBtn').onclick = apply; $('preset').onchange = e => { $('formula').value = presets[e.target.value]; apply() }; document.querySelectorAll('[data-formula]').forEach(b => b.onclick = () => { $('formula').value = b.dataset.formula; apply() });
+      $('range').oninput = e => { state.range = +e.target.value; $('rangeVal').textContent = `[-${state.range}, ${state.range}]`;['xPoint', 'yPoint'].forEach(id => $(id).max = state.range); rebuildSurface() };
+      $('resolution').oninput = e => { state.resolution = +e.target.value; $('resVal').textContent = `${state.resolution}×${state.resolution}`; rebuildSurface() }; $('xPoint').oninput = updatePoint; $('yPoint').oninput = updatePoint;
+      $('gridToggle').onchange = e => grid.visible = e.target.checked; $('planeToggle').onchange = e => { state.plane = e.target.checked; updateOverlays() }; $('gradientToggle').onchange = e => { state.gradient = e.target.checked; updateOverlays() }; $('pointToggle').onchange = e => { state.point = e.target.checked; updateOverlays() };
+      document.querySelectorAll('.tab').forEach(b => b.onclick = () => { document.querySelectorAll('.tab,.tab-content').forEach(x => x.classList.remove('active')); b.classList.add('active'); $(b.dataset.tab).classList.add('active'); if (b.dataset.tab === 'contours') drawContours() });
+      $('integrateBtn').onclick = integrate;
+      $('themeBtn').onclick = () => document.body.classList.toggle('light');
+      $('resetBtn').onclick = () => location.reload();
+      $('zoomInBtn').onclick = () => zoomBy(.72);
+      $('zoomOutBtn').onclick = () => zoomBy(1.38);
+      $('zoomResetBtn').onclick = resetView; $('demoBtn').onclick = async () => { state.formula = 'x^2-y^2'; $('formula').value = state.formula; apply(); $('planeToggle').checked = true; state.plane = true; $('gradientToggle').checked = true; state.gradient = true; state.x = 1; state.y = 1; $('xPoint').value = 1; $('yPoint').value = 1; updatePoint(); updateOverlays() };
+    }
+    init3D(); bind(); buildExpressions(); rebuildSurface();
+
+  </script>
+</body>
+
+</html>
